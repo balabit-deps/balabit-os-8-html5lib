@@ -1,0 +1,27 @@
+#!/usr/bin/make -f
+
+#export DH_VERBOSE=1
+#export DH_OPTIONS=-v
+#export PYBUILD_VERBOSE=1
+#export NOSE_VERBOSE=2
+
+export PYBUILD_NAME=html5lib
+
+%:
+	dh $@ --with python2,python3 --buildsystem=pybuild
+
+# This might have been used, but we'll conform instead to upstream docs,
+# mentioning running nosetests.
+#export PYBUILD_TEST_NOSE=1
+override_dh_auto_test:
+	# First, Python 2's nosetests
+	PYBUILD_DISABLE_python3=test \
+	PYBUILD_SYSTEM=custom \
+	PYBUILD_TEST_ARGS="py.test" dh_auto_test --buildsystem=pybuild
+	# Then for Python 3 :
+	PYBUILD_DISABLE_python2=test \
+	PYBUILD_SYSTEM=custom \
+	PYBUILD_TEST_ARGS="py.test-3" dh_auto_test --buildsystem=pybuild
+
+override_dh_installchangelogs:
+	dh_installchangelogs CHANGES.rst
